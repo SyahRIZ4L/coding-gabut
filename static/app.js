@@ -91,10 +91,22 @@ function renderMatch(match, index) {
         <div class="match-rank">${rank}</div>
         ${artwork}
       </div>
-      <div class="match-info"><span class="match-label">${index === 0 ? 'RESONANSI TERKUAT' : `MATCH 0${index + 1}`}</span><h3 class="match-name">${match.name}</h3><div class="match-score">MATCH SCORE / ${match.score}</div><div class="match-traits">${match.traits}</div></div>
+      <div class="match-info"><span class="match-label">${index === 0 ? 'RESONANSI TERKUAT' : `MATCH 0${index + 1}`}</span><h3 class="match-name">${match.name}</h3><div class="match-score">MATCH SCORE / ${match.score}%</div><div class="match-traits">${match.traits}</div></div>
       <p class="match-description">${match.analysis}</p>
     </article>
   `;
+}
+
+function renderSameGenderNote(match) {
+  const note = document.querySelector('#sameGenderNote');
+  if (!match) {
+    note.classList.add('hidden');
+    note.innerHTML = '';
+    return;
+  }
+
+  note.innerHTML = `<span class="section-label">KECOCOKAN SESAMA GENDER</span><p>Kalau kamu ingin melihat karakter ${match.gender}, kecocokan tertinggimu adalah <strong>${match.name}</strong> dengan skor <strong>${match.score}%</strong>.</p>`;
+  note.classList.remove('hidden');
 }
 
 async function showResults() {
@@ -124,6 +136,8 @@ async function showResults() {
   `).join('');
 
   document.querySelector('#matchList').innerHTML = data.matches.map(renderMatch).join('');
+  renderSameGenderNote(data.same_gender_match);
+  setupShareCard(data.matches[0]);
   document.querySelectorAll('.character-image img').forEach((image) => {
     image.addEventListener('error', () => {
       image.closest('.character-image').classList.add('image-missing');
@@ -131,6 +145,28 @@ async function showResults() {
   });
   statusText.textContent = 'REPORT READY';
   showView(result);
+}
+
+function setupShareCard(match) {
+  const shareButton = document.querySelector('#shareButton');
+  const shareOverlay = document.querySelector('#shareCard');
+  const shareContent = document.querySelector('#shareContent');
+  const closeButton = document.querySelector('#closeShareButton');
+  const copyButton = document.querySelector('#copyShareButton');
+  const copyStatus = document.querySelector('#copyStatus');
+  if (!match) return;
+
+  shareContent.innerHTML = `<div class="share-character"><img src="${characterImage(match.name)}" alt="Ilustrasi ${match.name}"><span>${match.name}</span></div><strong class="share-score">${match.score}%</strong><p>${match.traits}</p>`;
+  const summary = `Saya paling beresonansi dengan ${match.name} (${match.score}%). Trait yang paling dekat: ${match.traits}.`;
+  shareButton.onclick = () => shareOverlay.classList.remove('hidden');
+  closeButton.onclick = () => shareOverlay.classList.add('hidden');
+  shareOverlay.onclick = (event) => {
+    if (event.target === shareOverlay) shareOverlay.classList.add('hidden');
+  };
+  copyButton.onclick = async () => {
+    await navigator.clipboard.writeText(summary);
+    copyStatus.textContent = 'Ringkasan berhasil disalin.';
+  };
 }
 
 document.querySelectorAll('.gender-card').forEach((button) => {

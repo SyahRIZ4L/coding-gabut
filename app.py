@@ -60,6 +60,10 @@ LIKERT_QUESTIONS = [
     ("Saya menggunakan humor untuk membuka percakapan yang awalnya terasa canggung.", "humoris"),
 ]
 
+NEGATIVE_QUESTION_IDS = {
+    6, 10, 15, 19, 23, 27, 31, 35,
+}
+
 
 def serialize_questions():
     return [
@@ -68,6 +72,7 @@ def serialize_questions():
             "text": question,
             "trait": trait,
             "options": LIKERT_OPTIONS,
+            "negative": index in NEGATIVE_QUESTION_IDS,
         }
         for index, (question, trait) in enumerate(LIKERT_QUESTIONS)
     ]
@@ -78,9 +83,13 @@ def calculate_result(gender, choices):
 
     for question_index, option_index in enumerate(choices):
         trait = LIKERT_QUESTIONS[question_index][1]
-        scores[trait] += LIKERT_VALUES[int(option_index)]
+        value = LIKERT_VALUES[int(option_index)]
+        if question_index in NEGATIVE_QUESTION_IDS:
+            value *= -1
+        scores[trait] += value
 
     matches = find_likert_matches(scores, gender)[:3]
+    same_gender_matches = find_matches_for_gender(scores, gender)
     top_traits = sorted(scores.items(), key=lambda item: item[1], reverse=True)[:3]
     trait_reading = [
         {
@@ -94,23 +103,19 @@ def calculate_result(gender, choices):
         for trait, score in top_traits
     ]
 
-    results = []
-    for similarity, name, profile in matches:
-        results.append(
-            {
-                "name": name,
-                "score": round(similarity, 2),
-                "gender": profile.get("gender"),
-                "traits": quiz.explain_traits(profile.get("traits", {}), 4),
-                "analysis": quiz.build_profile_analysis(profile),
-            }
-        )
-
-    return {"traits": trait_reading, "matches": results}
+    return {
+        "traits": trait_reading,
+        "matches": [serialize_match(match) for match in matches],
+        "same_gender_match": serialize_match(same_gender_matches[0]) if same_gender_matches else None,
+    }
 
 
 def find_likert_matches(scores, gender):
     target_gender = "laki-laki" if gender == "perempuan" else "perempuan"
+    return find_matches_for_gender(scores, target_gender)
+
+
+def find_matches_for_gender(scores, target_gender):
     max_score = 12
     matches = []
     for name, profile in quiz.CHARACTER_PROFILES.items():
@@ -120,8 +125,20 @@ def find_likert_matches(scores, gender):
             max(0, min(1, (scores.get(trait, 0) + max_score) / (max_score * 2))) * value
             for trait, value in profile.get("traits", {}).items()
         )
-        matches.append((similarity, name, profile))
+        profile_total = sum(profile.get("traits", {}).values()) or 1
+        matches.append((similarity / profile_total * 100, name, profile))
     return sorted(matches, reverse=True)
+
+
+def serialize_match(match):
+    similarity, name, profile = match
+    return {
+        "name": name,
+        "score": round(similarity, 1),
+        "gender": profile.get("gender"),
+        "traits": quiz.explain_traits(profile.get("traits", {}), 4),
+        "analysis": quiz.build_profile_analysis(profile),
+    }
 
 
 @app.get("/")
