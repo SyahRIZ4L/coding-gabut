@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Star Rail Resonance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">✦</span><span>STAR RAIL / RESONANCE</span></div>
+      <div class="status"><span class="status-dot"></span><span id="statusText">PERSONALITY INDEX</span></div>
+    </header>
+
+    <section id="welcome" class="view welcome-view">
+      <div class="eyebrow">Honkai: Star Rail personality study</div>
+      <h1>Temukan karakter yang<br><em>beresonansi</em> denganmu.</h1>
+      <p class="intro">Empat puluh pernyataan, sepuluh dimensi kepribadian, dan tiga karakter yang paling dekat dengan cara kamu melihat dunia.</p>
+      <div class="gender-panel">
+        <div>
+          <span class="panel-kicker">01 / 02</span>
+          <h2>Pilih gender karakter yang ingin kamu temukan</h2>
+          <p>Profil yang ditampilkan akan memakai gender yang berlawanan dengan pilihanmu.</p>
+        </div>
+        <div class="gender-options">
+          <button class="gender-card" data-gender="laki-laki"><span class="gender-symbol">♂</span><span>Laki-laki</span><small>lihat karakter perempuan</small></button>
+          <button class="gender-card" data-gender="perempuan"><span class="gender-symbol">♀</span><span>Perempuan</span><small>lihat karakter laki-laki</small></button>
+        </div>
+      </div>
+      <div class="meta-row"><span>40 pertanyaan</span><span>± 6 menit</span><span>10 trait inti</span></div>
+    </section>
+
+    <section id="quiz" class="view quiz-view hidden">
+      <div class="quiz-head">
+        <div><span class="eyebrow">PERSONALITY INDEX</span><h2 id="questionNumber">Pertanyaan 01</h2></div>
+        <span id="progressText" class="progress-text">01 / 40</span>
+      </div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+      <div class="question-stage">
+        <p id="questionText" class="question-text"></p>
+        <div class="scale-guide"><span>Sangat setuju</span><span>Netral</span><span>Sangat tidak setuju</span></div>
+        <div id="answerGrid" class="answer-grid"></div>
+      </div>
+      <div class="quiz-footer">
+        <button id="backButton" class="text-button" type="button">← Sebelumnya</button>
+        <span class="save-note">Jawabanmu tersimpan di sesi ini</span>
+        <button id="nextButton" class="primary-button hidden" type="button" disabled>Berikutnya <span>→</span></button>
+      </div>
+    </section>
+
+    <section id="loading" class="view loading-view hidden"><div class="loader-ring"></div><p>Menyusun pola resonansimu...</p></section>
+
+    <section id="result" class="view result-view hidden">
+      <div class="result-heading"><div><span class="eyebrow">RESONANCE REPORT</span><h1>Jejak kepribadianmu.</h1></div><button id="restartButton" class="text-button" type="button">↻ Ulangi tes</button></div>
+      <div class="trait-reading"><div class="section-label">Trait paling dominan</div><div id="traitGrid" class="trait-grid"></div></div>
+      <div class="matches-heading"><div><span class="section-label">TOP 03 MATCHES</span><h2>Karakter yang paling dekat denganmu</h2></div><span class="match-note">berdasarkan 40 jawaban</span></div>
+      <div id="matchList" class="match-list"></div>
+    </section>
+
+    <footer class="footer"><span>Built for the Astral Express</span><span>v1.1 / local study</span></footer>
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

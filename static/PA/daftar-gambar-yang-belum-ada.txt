@@ -1,0 +1,22 @@
+Daftar gambar karakter yang belum tersedia.
+Simpan file PNG dengan nama persis berikut di folder static/PA.
+
+asta.png
+herta.png
+saber.png
+archer.png
+bailu.png
+jingliu.png
+dahlia.png
+castorice.png
+hysilens.png
+cerydra.png
+evernight.png
+dan-heng-permansor-terrae.png
+cyrene.png
+sparxie.png
+yao-guang.png
+silver-wolf-lv999.png
+rin-tohsaka.png
+gilgamesh.png
+himeko-nova.png
