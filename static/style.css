@@ -111,6 +111,21 @@ h1 em { color: var(--coral); font-style: normal; }
 .match-note { color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; }
 .same-gender-note { display: grid; grid-template-columns: 190px 1fr; gap: 24px; margin: -4px 0 24px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .same-gender-note p { max-width: 760px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.relationship-heading { margin: 65px 0 20px; }
+.relationship-heading h2 { margin: 8px 0 6px; }
+.relationship-heading p { margin: 0; color: var(--muted); font-size: 13px; }
+.relationship-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.relationship-card { padding: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.68); }
+.relationship-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.relationship-card > p { min-height: 42px; margin: 16px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.relationship-score { color: var(--coral); font-size: 20px; font-weight: 800; }
+.relationship-matches { border-top: 1px solid var(--line); }
+.relationship-match { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.relationship-match strong { display: flex; flex-direction: column; gap: 4px; }
+.relationship-match small { color: var(--muted); font-size: 10px; font-weight: 400; line-height: 1.4; }
+.relationship-match:last-child { border-bottom: 0; padding-bottom: 0; }
+.relationship-rank { color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; }
+.relationship-match > span:last-child { color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; }
 .same-gender-note strong { color: var(--ink); }
 .match-actions { display: flex; align-items: center; gap: 18px; }
 .share-button { padding: 9px 13px; border: 1px solid var(--coral); color: var(--coral-dark); background: transparent; cursor: pointer; font-size: 12px; transition: background .2s, color .2s; }
@@ -166,6 +181,7 @@ h1 em { color: var(--coral); font-style: normal; }
   .scale-guide { font-size: 8px; }
   .gender-card { min-height: 112px; }
   .gender-symbol { margin-bottom: 12px; }
+  .relationship-list { grid-template-columns: 1fr; }
   .same-gender-note { grid-template-columns: 1fr; gap: 8px; }
   .question-stage { min-height: 0; padding: 52px 0 32px; }
   .answer-card { min-height: 70px; }

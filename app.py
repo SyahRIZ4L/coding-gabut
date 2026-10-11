@@ -17,6 +17,35 @@ LIKERT_OPTIONS = [
 
 LIKERT_VALUES = (3, 2, 1, 0, -1, -2, -3)
 
+RELATIONSHIP_PROFILES = {
+    "sahabat": {
+        "label": "Sahabat",
+        "description": "Karakter yang paling cocok menjadi teman dekat dan tempat berbagi cerita.",
+        "core": {"sosial": 1.4, "empati": 1.4, "humoris": 1.2},
+        "support": {"tenang": 1.0, "spontan": 0.9, "berani": 0.6},
+        "complement": {"mandiri": 0.5, "logis": 0.4},
+        "conflicts": {"ambisius": 0.2, "disiplin": 0.2},
+    },
+    "pacar": {
+        "label": "Pacar",
+        "description": "Karakter yang berpotensi punya chemistry romantis paling kuat denganmu.",
+        "gender": "opposite",
+        "core": {"empati": 1.5, "sosial": 1.2, "humoris": 1.0},
+        "support": {"berani": 0.9, "spontan": 0.8, "mandiri": 0.7},
+        "complement": {"tenang": 0.6, "logis": 0.4},
+        "conflicts": {"ambisius": 0.3, "disiplin": 0.2},
+    },
+    "pasangan_hidup": {
+        "label": "Pasangan hidup",
+        "description": "Karakter yang paling cocok membangun hubungan serius dan saling menopang.",
+        "gender": "opposite",
+        "core": {"empati": 1.5, "tenang": 1.3, "disiplin": 1.2},
+        "support": {"mandiri": 1.0, "logis": 0.8, "berani": 0.6},
+        "complement": {"sosial": 0.5, "humoris": 0.4},
+        "conflicts": {"spontan": 0.3, "ambisius": 0.2},
+    },
+}
+
 LIKERT_QUESTIONS = [
     ("Saat situasi memanas, saya bisa menunda reaksi sampai memahami apa yang sebenarnya terjadi.", "tenang"),
     ("Ketika banyak masalah datang sekaligus, saya mampu memilih satu hal untuk ditangani lebih dulu.", "tenang"),
@@ -88,9 +117,15 @@ def calculate_result(gender, choices):
             value *= -1
         scores[trait] += value
 
-    matches = find_likert_matches(scores, gender)[:3]
-    same_gender_matches = find_matches_for_gender(scores, gender)
+    matches = find_likert_matches(scores)[:3]
     top_traits = sorted(scores.items(), key=lambda item: item[1], reverse=True)[:3]
+    relationships = {
+        relationship: [
+            serialize_match(match)
+            for match in find_relationship_matches(scores, gender, relationship)[:3]
+        ]
+        for relationship in RELATIONSHIP_PROFILES
+    }
     trait_reading = [
         {
             "name": quiz.TRAIT_DETAILS.get(trait, {}).get("label", trait),
@@ -106,20 +141,19 @@ def calculate_result(gender, choices):
     return {
         "traits": trait_reading,
         "matches": [serialize_match(match) for match in matches],
-        "same_gender_match": serialize_match(same_gender_matches[0]) if same_gender_matches else None,
+        "relationships": relationships,
     }
 
 
-def find_likert_matches(scores, gender):
-    target_gender = "laki-laki" if gender == "perempuan" else "perempuan"
-    return find_matches_for_gender(scores, target_gender)
+def find_likert_matches(scores):
+    return find_matches_for_gender(scores)
 
 
-def find_matches_for_gender(scores, target_gender):
+def find_matches_for_gender(scores, target_gender=None):
     max_score = 12
     matches = []
     for name, profile in quiz.CHARACTER_PROFILES.items():
-        if profile.get("gender") != target_gender:
+        if target_gender and profile.get("gender") != target_gender:
             continue
         similarity = sum(
             max(0, min(1, (scores.get(trait, 0) + max_score) / (max_score * 2))) * value
@@ -130,14 +164,70 @@ def find_matches_for_gender(scores, target_gender):
     return sorted(matches, reverse=True)
 
 
+def find_relationship_matches(scores, gender, relationship):
+    relationship_profile = RELATIONSHIP_PROFILES[relationship]
+    target_gender = None
+    if relationship_profile.get("gender") == "opposite":
+        target_gender = "laki-laki" if gender == "perempuan" else "perempuan"
+    matches = []
+
+    for name, profile in quiz.CHARACTER_PROFILES.items():
+        if target_gender and profile.get("gender") != target_gender:
+            continue
+        character_traits = profile.get("traits", {})
+        core_score = weighted_trait_score(scores, character_traits, relationship_profile["core"], "similar")
+        support_score = weighted_trait_score(scores, character_traits, relationship_profile["support"], "similar")
+        complement_score = weighted_trait_score(scores, character_traits, relationship_profile["complement"], "complement")
+        conflict_penalty = weighted_trait_score(scores, character_traits, relationship_profile["conflicts"], "conflict")
+        score = max(0, min(100, (core_score * 0.5) + (support_score * 0.25) + (complement_score * 0.15) - (conflict_penalty * 0.1)))
+        reason = build_relationship_reason(scores, character_traits, relationship_profile)
+        matches.append((score, name, profile, reason))
+
+    return sorted(matches, reverse=True)
+
+
+def weighted_trait_score(user_scores, character_traits, weights, mode):
+    total = sum(weights.values()) or 1
+    score = 0
+    for trait, weight in weights.items():
+        user_value = (user_scores.get(trait, 0) + 12) / 24
+        character_value = character_traits.get(trait, 0) / 5
+        if mode == "complement":
+            difference = abs(user_value - character_value)
+            trait_score = 1 - min(1, abs(difference - 0.35) / 0.35)
+        elif mode == "conflict":
+            trait_score = abs(user_value - character_value)
+        else:
+            trait_score = 1 - abs(user_value - character_value)
+        score += max(0, min(1, trait_score)) * weight
+    return score / total * 100
+
+
+def build_relationship_reason(scores, character_traits, relationship_profile):
+    core_traits = relationship_profile["core"]
+    strongest = sorted(
+        core_traits,
+        key=lambda trait: (
+            1 - abs(
+                (scores.get(trait, 0) + 12) / 24
+                - character_traits.get(trait, 0) / 5
+            )
+        ),
+        reverse=True,
+    )[:2]
+    labels = [quiz.TRAIT_DETAILS.get(trait, {}).get("label", trait) for trait in strongest]
+    return f"Kuat di {', '.join(labels)}."
+
+
 def serialize_match(match):
-    similarity, name, profile = match
+    similarity, name, profile = match[:3]
     return {
         "name": name,
         "score": round(similarity, 1),
         "gender": profile.get("gender"),
         "traits": quiz.explain_traits(profile.get("traits", {}), 4),
         "analysis": quiz.build_profile_analysis(profile),
+        "reason": match[3] if len(match) > 3 else None,
     }
 
 

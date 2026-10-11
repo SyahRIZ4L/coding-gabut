@@ -23,12 +23,12 @@
       <div class="gender-panel">
         <div>
           <span class="panel-kicker">01 / 02</span>
-          <h2>Pilih gender karakter yang ingin kamu temukan</h2>
-          <p>Profil yang ditampilkan akan memakai gender yang berlawanan dengan pilihanmu.</p>
+          <h2>Pilih gender kamu</h2>
+          <p>Semua karakter akan dinilai berdasarkan kecocokan kepribadian untuk tiap jenis hubungan.</p>
         </div>
         <div class="gender-options">
-          <button class="gender-card" data-gender="laki-laki"><span class="gender-symbol">♂</span><span>Laki-laki</span><small>lihat karakter perempuan</small></button>
-          <button class="gender-card" data-gender="perempuan"><span class="gender-symbol">♀</span><span>Perempuan</span><small>lihat karakter laki-laki</small></button>
+          <button class="gender-card" data-gender="laki-laki"><span class="gender-symbol">♂</span><span>Laki-laki</span><small>pacar / istri: perempuan</small></button>
+          <button class="gender-card" data-gender="perempuan"><span class="gender-symbol">♀</span><span>Perempuan</span><small>pacar / suami: laki-laki</small></button>
         </div>
       </div>
       <div class="meta-row"><span>40 pertanyaan</span><span>± 6 menit</span><span>10 trait inti</span></div>
@@ -59,8 +59,9 @@
       <aside class="method-note"><span class="section-label">CARA MEMBACA HASIL</span><p>Setiap pernyataan bernilai dari -3 sampai +3. Pernyataan berarah negatif dibalik agar jawaban yang konsisten tetap dihitung sesuai trait. Persentase menunjukkan kedekatan pola trait-mu dengan profil karakter, bukan diagnosis psikologis.</p></aside>
       <div class="trait-reading"><div class="section-label">Trait paling dominan</div><div id="traitGrid" class="trait-grid"></div></div>
       <div class="matches-heading"><div><span class="section-label">TOP 03 MATCHES</span><h2>Karakter yang paling dekat denganmu</h2></div><div class="match-actions"><span class="match-note">berdasarkan 40 jawaban</span><button id="shareButton" class="share-button" type="button">Bagikan hasil</button></div></div>
-      <div id="sameGenderNote" class="same-gender-note hidden"></div>
       <div id="matchList" class="match-list"></div>
+      <div class="relationship-heading"><span class="section-label">RELATIONSHIP INDEX</span><h2>Karakter yang cocok mengisi hidupmu</h2><p>Kecocokan ini memakai bobot trait yang berbeda untuk tiap jenis hubungan.</p></div>
+      <div id="relationshipList" class="relationship-list"></div>
       <div id="shareCard" class="share-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
         <article class="share-card">
           <button id="closeShareButton" class="share-close" type="button" aria-label="Tutup">×</button>

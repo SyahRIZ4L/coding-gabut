@@ -97,16 +97,25 @@ function renderMatch(match, index) {
   `;
 }
 
-function renderSameGenderNote(match) {
-  const note = document.querySelector('#sameGenderNote');
-  if (!match) {
-    note.classList.add('hidden');
-    note.innerHTML = '';
-    return;
-  }
-
-  note.innerHTML = `<span class="section-label">KECOCOKAN SESAMA GENDER</span><p>Kalau kamu ingin melihat karakter ${match.gender}, kecocokan tertinggimu adalah <strong>${match.name}</strong> dengan skor <strong>${match.score}%</strong>.</p>`;
-  note.classList.remove('hidden');
+function renderRelationshipGroup(group, type) {
+  const titles = {
+    sahabat: 'Sahabat',
+    pacar: 'Pacar',
+    pasangan_hidup: state.gender === 'laki-laki' ? 'Istri' : 'Suami',
+  };
+  return `
+    <article class="relationship-card">
+      <div class="relationship-card-head"><span class="section-label">${titles[type]}</span><span class="relationship-score">${group[0]?.score || 0}%</span></div>
+      <p>${type === 'sahabat' ? 'Teman dekat yang seru diajak berbagi cerita.' : type === 'pacar' ? 'Chemistry romantis yang paling menjanjikan.' : 'Partner yang stabil untuk membangun masa depan.'}</p>
+      <div class="relationship-matches">${group.map((match, index) => `
+        <div class="relationship-match">
+          <span class="relationship-rank">0${index + 1}</span>
+          <strong>${match.name}<small>${match.reason || ''}</small></strong>
+          <span>${match.score}%</span>
+        </div>
+      `).join('')}</div>
+    </article>
+  `;
 }
 
 async function showResults() {
@@ -136,7 +145,9 @@ async function showResults() {
   `).join('');
 
   document.querySelector('#matchList').innerHTML = data.matches.map(renderMatch).join('');
-  renderSameGenderNote(data.same_gender_match);
+  document.querySelector('#relationshipList').innerHTML = Object.entries(data.relationships)
+    .map(([type, group]) => renderRelationshipGroup(group, type))
+    .join('');
   setupShareCard(data.matches[0]);
   document.querySelectorAll('.character-image img').forEach((image) => {
     image.addEventListener('error', () => {
